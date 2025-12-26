@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Travel Planner - Курсовой проект</title>
+    <link rel="stylesheet" href="public/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  </head>
+  <body>
+    <header class="page-header">
+      <div class="header-container">
+        <div class="header-logo">
+          <span style="font-size: 24px">✈️</span>
+          <h1 class="header-title">Планировщик путешествий</h1>
+        </div>
+
+        <div class="trip-main__trip-info trip-info"></div>
+      </div>
+    </header>
+    <main class="page-body__page-main page-main">
+      <div class="page-body__container">
+        <div class="trip-sidebar-container"></div>
+        <section class="trip-events">
+          <div class="trip-events__header">
+            <h2 class="trip-events__title">Маршрут</h2>
+            <button
+              class="trip-main__event-add-btn btn btn--yellow"
+              type="button"
+            >
+              Добавить событие
+            </button>
+          </div>
+          <ul class="trip-events__list"></ul>
+        </section>
+      </div>
+    </main>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
