@@ -1,47 +1,40 @@
-import { createElement } from "../render.js";
+import { createElement } from '../render.js';
 
 const createTripOverviewTemplate = (trip) => {
-  const totalPrice = trip.points.reduce(
-    (sum, point) => sum + point.basePrice,
-    0
-  );
+  const totalPrice = trip.points.reduce((sum, point) => sum + point.basePrice, 0);
 
   const checklistTemplate = trip.checklist
     .map(
       (item) => `
-    <li class="trip-checklist__item" data-id="${
-      item.id
-    }" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+    <li class="trip-checklist__item" data-id="${item.id}" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
         <input 
             type="checkbox" 
             class="checklist-checkbox" 
-            ${item.isChecked ? "checked" : ""}
+            ${item.isChecked ? 'checked' : ''}
             style="cursor: pointer; width: 18px; height: 18px;"
         >
         <span 
             class="checklist-text" 
-            style="flex: 1; text-decoration: ${
-              item.isChecked ? "line-through" : "none"
-            }; color: ${item.isChecked ? "#aaa" : "inherit"};"
+            style="flex: 1; text-decoration: ${item.isChecked ? 'line-through' : 'none'}; color: ${
+              item.isChecked ? '#aaa' : 'inherit'
+            };"
         >${item.title}</span>
         <button class="checklist-delete-btn" style="border: none; background: none; color: #ff7675; cursor: pointer; font-weight: bold;">✕</button>
     </li>
   `
     )
-    .join("");
+    .join('');
 
   const photosTemplate = trip.photos
     .map((src) => `<img src="${src}" class="trip-gallery__img" ...>`)
-    .join("");
+    .join('');
 
   return `
     <section class="trip-overview">
-      
       <div class="trip-gallery">
         <h3 class="trip-overview__title">Фотогалерея поездки</h3>
         <div class="trip-gallery__container">
            ${photosTemplate}
-           <button class="btn-add-photo" title="Add Random Photo">+</button>
         </div>
       </div>
 
@@ -70,6 +63,7 @@ export default class TripOverviewView {
   constructor(trip) {
     this.trip = trip;
     this.element = null;
+    this._callback = {};
   }
 
   getTemplate() {
@@ -85,60 +79,46 @@ export default class TripOverviewView {
   }
 
   _setInnerHandlers() {
-    const addBtn = this.element.querySelector(".checklist-add-btn");
-    const input = this.element.querySelector(".trip-checklist__input");
-    const list = this.element.querySelector(".trip-checklist__list");
+    const addBtn = this.element.querySelector('.checklist-add-btn');
+    const input = this.element.querySelector('.trip-checklist__input');
+    const list = this.element.querySelector('.trip-checklist__list');
 
-    addBtn.addEventListener("click", (evt) => {
+    addBtn.addEventListener('click', (evt) => {
       evt.preventDefault();
-      const text = input.value.trim();
-      if (!text) return;
-
-      const newItem = document.createElement("li");
-      newItem.className = "trip-checklist__item";
-      newItem.style.cssText =
-        "display: flex; align-items: center; gap: 10px; margin-bottom: 8px;";
-      newItem.innerHTML = `
-            <input type="checkbox" class="checklist-checkbox" style="cursor: pointer; width: 18px; height: 18px;">
-            <span class="checklist-text" style="flex: 1;">${text}</span>
-            <button class="checklist-delete-btn" style="border: none; background: none; color: #ff7675; cursor: pointer; font-weight: bold;">✕</button>
-          `;
-
-      list.appendChild(newItem);
-      input.value = "";
+      const title = input.value.trim();
+      if (!title || !this._callback.addItem) return;
+      this._callback.addItem(title);
+      input.value = '';
     });
 
-    list.addEventListener("click", (evt) => {
-      if (evt.target.classList.contains("checklist-delete-btn")) {
-        evt.target.closest("li").remove();
-      }
-
-      if (evt.target.classList.contains("checklist-checkbox")) {
-        const span = evt.target.nextElementSibling;
-        if (evt.target.checked) {
-          span.style.textDecoration = "line-through";
-          span.style.color = "#aaa";
-        } else {
-          span.style.textDecoration = "none";
-          span.style.color = "inherit";
+    list.addEventListener('click', (evt) => {
+      if (evt.target.classList.contains('checklist-delete-btn')) {
+        const itemId = evt.target.closest('li')?.dataset.id;
+        if (itemId && this._callback.deleteItem) {
+          this._callback.deleteItem(itemId);
         }
       }
     });
 
-    this.element
-      .querySelector(".btn-add-photo")
-      .addEventListener("click", () => {
-        const container = this.element.querySelector(
-          ".trip-gallery__container"
-        );
-        const btn = this.element.querySelector(".btn-add-photo");
+    list.addEventListener('change', (evt) => {
+      if (evt.target.classList.contains('checklist-checkbox')) {
+        const itemId = evt.target.closest('li')?.dataset.id;
+        if (itemId && this._callback.toggleItem) {
+          this._callback.toggleItem(itemId, evt.target.checked);
+        }
+      }
+    });
+  }
 
-        const newImg = document.createElement("img");
-        newImg.src = `https://loremflickr.com/300/200/travel,landmark?random=${Math.random()}`;
-        newImg.className = "trip-gallery__img";
-        newImg.alt = "New Photo";
+  setAddChecklistHandler(callback) {
+    this._callback.addItem = callback;
+  }
 
-        container.insertBefore(newImg, btn);
-      });
+  setDeleteChecklistHandler(callback) {
+    this._callback.deleteItem = callback;
+  }
+
+  setToggleChecklistHandler(callback) {
+    this._callback.toggleItem = callback;
   }
 }
