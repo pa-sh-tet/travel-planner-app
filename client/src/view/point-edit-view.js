@@ -169,7 +169,7 @@ export default class PointEditView {
         defaultDate: this._state.dateTo,
         minDate: this._state.dateFrom,
         onChange: ([userDate]) => {
-          this._state.dateFrom = userDate;
+          this._state.dateTo = userDate;
         },
       }
     );
